@@ -180,6 +180,7 @@ options::options()
             "mill-speed", po::value<int>(), "spindle rpm when milling")(
             "milldrill", po::value<bool>()->default_value(false)->implicit_value(true), "drill using the mill head")(
             "nog81", po::value<bool>()->default_value(false)->implicit_value(true), "replace G81 with G0+G1")(
+            "tinyg", po::value<bool>()->default_value(false)->implicit_value(true), "tinyg compatible gcode generation")(
             "extra-passes", po::value<int>()->default_value(0), "specify the the number of extra isolation passes, increasing the isolation width half the tool diameter with each pass")(
             "fill-outline", po::value<bool>()->default_value(false)->implicit_value(true), "accept a contour instead of a polygon as outline (you likely want to enable this one)")(
             "outline-width", po::value<double>(), "width of the outline")(
@@ -333,9 +334,10 @@ static void check_generic_parameters(po::variables_map const& vm)
                 ( !boost::iequals( software, "linuxcnc" ) &&	//boost::iequals is case insensitive
                   !boost::iequals( software, "mach3" ) &&
                   !boost::iequals( software, "mach4" ) &&
+                  !boost::iequals( software, "chili" ) &&
                   !boost::iequals( software, "custom" ) ) )
         {
-            cerr << "Error: unspecified or unsupported software, please specify a supported software (linuxcnc, mach3, mach4 or custom).\n";
+            cerr << "Error: unspecified or unsupported software, please specify a supported software (linuxcnc, mach3, mach4, chili or custom).\n";
             exit(ERR_NOSOFTWARE);
         }
 

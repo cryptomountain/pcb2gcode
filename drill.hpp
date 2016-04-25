@@ -87,8 +87,8 @@ public:
     void add_header(string);
     void set_preamble(string);
     void set_postamble(string);
-    void export_ngc(const string of_name, shared_ptr<Driller> target, bool onedrill, bool nog81);
-    void export_ngc(const string of_name, shared_ptr<Cutter> target);
+    void export_ngc(const string of_name, shared_ptr<Driller> target, bool onedrill, bool tinyg, bool nog81);
+    void export_ngc(const string of_name, shared_ptr<Cutter> target, bool tinyg);
     void set_svg_exporter(shared_ptr<SVG_Exporter> svgexpo);
 
     shared_ptr< map<int, drillbit> > get_bits();

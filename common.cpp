@@ -32,6 +32,7 @@ string getSoftwareString( Software software )
         case LINUXCNC:  return "LinuxCNC";
         case MACH4:     return "Mach4";
         case MACH3:     return "Mach3";
+        case CHILI:     return "Chilipeppr";
         case CUSTOM:    return "custom software";
         default:        return "unknown software";
     }

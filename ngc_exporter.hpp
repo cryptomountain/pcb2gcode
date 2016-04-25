@@ -68,6 +68,7 @@ public:
 
 protected:
     void export_layer(shared_ptr<Layer> layer, string of_name);
+    void export_layer_tinyg(shared_ptr<Layer> layer, string of_name);
     inline bool aligned(icoords::const_iterator p0, icoords::const_iterator p1, icoords::const_iterator p2)
     {
         return ( (p0->first == p1->first) && (p1->first == p2->first) ) ||      //x-aligned
@@ -80,6 +81,7 @@ protected:
     vector<string> header;
     string preamble;        //Preamble from command line (user file)
     string postamble;       //Postamble from command line (user file)
+    bool tinyg;
 
     double g64;             //maximum deviation from commanded toolpath
     double cfactor;         //imperial/metric conversion factor for output file

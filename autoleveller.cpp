@@ -70,7 +70,8 @@ autoleveller::autoleveller( const boost::program_options::variables_map &options
     probeOff( boost::replace_all_copy(options["al-probe-off"].as<string>(), "@", "\n") ),
     software( boost::iequals( options["software"].as<string>(), "linuxcnc" ) ? LINUXCNC :
               boost::iequals( options["software"].as<string>(), "mach3" ) ? MACH3 :
-              boost::iequals( options["software"].as<string>(), "mach4" ) ? MACH4 : CUSTOM ),
+              boost::iequals( options["software"].as<string>(), "mach4" ) ? MACH4 :
+              boost::iequals( options["software"].as<string>(), "chili" ) ? CHILI : CUSTOM ),
     quantization_error( quantization_error * cfactor ),
     xoffset( xoffset ),
     yoffset( yoffset ),

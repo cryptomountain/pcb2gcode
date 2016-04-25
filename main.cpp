@@ -421,12 +421,12 @@ int main(int argc, char* argv[])
 
         if (vm["milldrill"].as<bool>())
         {
-            ep.export_ngc( build_filename(outputdir, vm["drill-output"].as<string>()), cutter);
+            ep.export_ngc( build_filename(outputdir, vm["drill-output"].as<string>()), cutter, vm["tinyg"].as<bool>());
         }
         else
         {
             ep.export_ngc( build_filename(outputdir, vm["drill-output"].as<string>()),
-                           driller, vm["onedrill"].as<bool>(), vm["nog81"].as<bool>());
+                           driller, vm["onedrill"].as<bool>(), vm["tinyg"].as<bool>(), vm["nog81"].as<bool>() );
         }
 
         cout << "DONE. The board should be drilled from the " << ( workSide(vm, "drill") ? "FRONT" : "BACK" ) << " side.\n";

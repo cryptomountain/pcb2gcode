@@ -78,6 +78,7 @@ void NGC_Exporter::export_all(boost::program_options::variables_map& options)
     bFrontAutoleveller = options["al-front"].as<bool>();
     bBackAutoleveller = options["al-back"].as<bool>();
     string outputdir = options["output-dir"].as<string>();
+    tinyg = options["tinyg"].as<bool>();
     
     //set imperial/metric conversion factor for output coordinates depending on metricoutput option
     cfactor = bMetricoutput ? 25.4 : 1;
@@ -115,7 +116,11 @@ void NGC_Exporter::export_all(boost::program_options::variables_map& options)
         option_name << layername << "-output";
         string of_name = build_filename(outputdir, options[option_name.str()].as<string>());
         cerr << "Exporting " << layername << "... ";
-        export_layer(board->get_layer(layername), of_name);
+        if(!tinyg)
+            export_layer(board->get_layer(layername), of_name);
+        else
+            export_layer_tinyg(board->get_layer(layername), of_name);
+
         cerr << "DONE." << " (Height: " << board->get_height() * cfactor
              << (bMetricoutput ? "mm" : "in") << " Width: "
              << board->get_width() * cfactor << (bMetricoutput ? "mm" : "in")
@@ -188,7 +193,6 @@ void NGC_Exporter::export_layer(shared_ptr<Layer> layer, string of_name)
         of << "G94 ( Inches per minute feed rate. )\n"
            << "G20 ( Units == INCHES. )\n\n";
     }
-
     of << "G90 ( Absolute coordinates. )\n"
        << "S" << left << mill->speed << " ( RPM spindle speed. )\n"
        << "G64 P" << g64 << " ( set maximum deviation from commanded toolpath )\n"
@@ -337,7 +341,6 @@ void NGC_Exporter::export_layer(shared_ptr<Layer> layer, string of_name)
                     }
                     else
                         of << "G01 Z" << mill->zwork * cfactor << "\n";
-
                     of << "G04 P0 ( dwell for no time -- G64 should not smooth over this point )\n";
                     of << "F" << mill->feed * cfactor << endl;
 
@@ -354,7 +357,7 @@ void NGC_Exporter::export_layer(shared_ptr<Layer> layer, string of_name)
                                 || !aligned(last, iter, peek) )      //Not aligned
                         {
                             /* no need to check for "they are on one axis but iter is outside of last and peek"
-                             because that's impossible from how they are generated */
+                               because that's impossible from how they are generated */
                             if( bAutolevelNow )
                                 of << leveller->addChainPoint( icoordpair( ( iter->first - xoffsetTot ) * cfactor,
                                                                            ( iter->second - yoffsetTot ) * cfactor ) );

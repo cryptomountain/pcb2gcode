@@ -24,6 +24,7 @@ pcb2gcode_SOURCES = \
     mill.hpp \
     ngc_exporter.hpp \
     ngc_exporter.cpp \
+    ngc_tinyg_exporter.cpp \
     surface.hpp \
     surface.cpp \
     tile.hpp \

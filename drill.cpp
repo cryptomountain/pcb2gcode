@@ -183,7 +183,7 @@ double ExcellonProcessor::get_xvalue(double xvalue)
        2. Replace the current tiling implementation (gcode repetition) with a subroutine-based solution
  */
 /******************************************************************************/
-void ExcellonProcessor::export_ngc(const string of_name, shared_ptr<Driller> driller, bool onedrill, bool nog81)
+void ExcellonProcessor::export_ngc(const string of_name, shared_ptr<Driller> driller, bool onedrill, bool tinyg, bool nog81)
 {
     ivalue_t double_mirror_axis = mirror_absolute ? 0 : board_width;
     double xoffsetTot;
@@ -194,6 +194,8 @@ void ExcellonProcessor::export_ngc(const string of_name, shared_ptr<Driller> dri
     int rad = 1.;
 
     cout << "Exporting drill... ";
+    if( tinyg )
+        nog81=true;
 
     zchange << setprecision(3) << fixed << driller->zchange * cfactor;
     tiling->setGCodeEnd( "G00 Z" + zchange.str() + " ( All done -- retract )\n"
@@ -213,7 +215,10 @@ void ExcellonProcessor::export_ngc(const string of_name, shared_ptr<Driller> dri
         of << "( " << s << " )" << "\n";
     }
 
-    of << "( Software-independent Gcode )\n";
+    if( !tinyg )
+        of << "( Software-independent Gcode )\n";
+    else
+        of << "( Software-independent Gcode, TinyG model )\n";
 
     if (!onedrill)
     {
@@ -236,7 +241,8 @@ void ExcellonProcessor::export_ngc(const string of_name, shared_ptr<Driller> dri
 
     of << preamble_ext;        //insert external preamble file
     of << preamble;            //insert internal preamble
-    of << "S" << left << driller->speed << "     (RPM spindle speed.)\n" << "\n";
+    if( !tinyg )
+        of << "S" << left << driller->speed << "     (RPM spindle speed.)\n" << "\n";
 
     //tiling->header( of );     // See TODO #2
 
@@ -255,8 +261,11 @@ void ExcellonProcessor::export_ngc(const string of_name, shared_ptr<Driller> dri
                << "(MSG, Change tool bit to drill size " << it->second.diameter
                << " " << it->second.unit << ")\n"
                << "M6      (Tool change.)\n"
-               << "M0      (Temporary machine stop.)\n"
-               << "M3      (Spindle on clockwise.)\n" << "\n";
+               << "M0      (Temporary machine stop.)\n";
+            if( tinyg )
+               of << "M3 S" << left << driller->speed << "     (Spnindle On, S=RPM)\n\n";
+            else
+                of << "M3 (Spindle On)\n\n";
         }
         
         if( nog81 )
@@ -384,7 +393,7 @@ bool ExcellonProcessor::millhole(std::ofstream &of, double x, double y,
  mill larger holes by using a smaller mill-head
  */
 /******************************************************************************/
-void ExcellonProcessor::export_ngc(const string outputname, shared_ptr<Cutter> target)
+void ExcellonProcessor::export_ngc(const string outputname, shared_ptr<Cutter> target, bool tinyg)
 {
     unsigned int badHoles = 0;
     double xoffsetTot;
@@ -415,8 +424,10 @@ void ExcellonProcessor::export_ngc(const string outputname, shared_ptr<Cutter> t
 
     if( tileInfo.enabled && tileInfo.software != CUSTOM )
         of << "( Gcode for " << getSoftwareString(tileInfo.software) << " )\n";
-    else
+    else if( !tinyg )
         of << "( Software-independent Gcode )\n";
+    else
+        of << "( Software-independent Gcode, TinyG model )\n";
 
     of.setf(ios_base::fixed);      //write floating-point values in fixed-point notation
     of.precision(5);              //Set floating-point decimal precision
@@ -434,10 +445,17 @@ void ExcellonProcessor::export_ngc(const string outputname, shared_ptr<Cutter> t
     of << " )\n\n";
 
     //preamble
-    of << preamble_ext << preamble << "S" << left << target->speed
-       << "    (RPM spindle speed.)\n" << "F" << target->feed * cfactor
-       << " (Feedrate)\nM3        (Spindle on clockwise.)\n"
-       << "G00 Z" << target->zsafe * cfactor << "\n\n";
+    if(!tinyg){
+        of << preamble_ext << preamble << "S" << left << target->speed
+           << "    (RPM spindle speed.)\n" << "F" << target->feed * cfactor
+           << " (Feedrate)\nM3        (Spindle on clockwise.)\n"
+           << "G00 Z" << target->zsafe * cfactor << "\n\n";
+     }else{
+        of << preamble_ext << preamble
+           << "F" << target->feed * cfactor
+           << " (Feedrate)\nM3 S" << left << target->speed << "     (Spindle on clockwise, S=RPM.)\n"
+           << "G00 Z" << target->zsafe * cfactor << "\n\n";
+    }
 
     tiling->header( of );
 

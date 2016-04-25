@@ -46,7 +46,7 @@ void Tiling::header( std::ofstream &of )
                 tileSequence( of );
                 of << gCodeEnd << "\nO" << tileInfo.tileVar << " ( Main subroutine )\n\n";
                 break;
-            
+            case CHILI:
             case CUSTOM:
                 break;
         
@@ -70,7 +70,7 @@ void Tiling::footer( std::ofstream &of )
             case MACH4:
                 of << "\nM99\n\n";
                 break;
-            
+            case CHILI:
             case CUSTOM:
                 break;
         }
